@@ -1,0 +1,472 @@
+import { GetRenderManager } from "../display/render.js";
+import { GetAudioManager } from '/modules/world/audio.js';
+import { Direction } from "../world/direction.js";
+import { WriteLog, ShowInventory, HideInventory, ShowCharacter, HideCharacter } from "../display/show.js";
+import { Random } from "../utility/random.js";
+import { HealingPotion, StaminaPotion } from "../item/potion.js";
+
+class InventoryContainer {
+    constructor(item) {
+        this.quantity = 1;
+        this.item = item;
+    }
+}
+
+class Player {
+    constructor() {
+        // [x, y] in map grid - 0-indexed
+        this.location = [3, 0];
+        this.orientation = Direction.SOUTH;
+
+        this.uuid = "player";
+        this.name = "Lone Survivor";
+        this.hp = 250;
+        this.hpMax = 250;
+        this.stamina = 200;
+        this.staminaMax = 200;
+        this.dead = false;
+        this.immobile = false;
+        this.staminaCost = {
+            "move" : 5
+        };
+        this.regen = {
+            "stamina" : 2.5,
+            "hp" : 0.1
+        };
+        this.inventory = {
+            
+        };
+        this.inventory[new StaminaPotion().id()] = new InventoryContainer(new StaminaPotion());
+        this.inventory[new StaminaPotion().id()].quantity = 5;
+        this.inventory[new HealingPotion().id()] = new InventoryContainer(new HealingPotion());
+        this.inventory[new HealingPotion().id()].quantity = 5;
+        this.random = new Random("Player Random");
+    }
+
+    getLocation() {
+        return this.location;
+    }
+
+    modifyHP(value) {
+        this.hp += value;
+        if(this.hp <= 0) {
+            this.hp = 0;
+            this.dead = true;
+            this.immobile = true;
+        }
+        if(this.hp >= this.hpMax) {
+            this.hp = this.hpMax;
+        }
+    }
+
+    modifyStamina(value) {
+        this.stamina += value;
+        if(this.stamina <= 0) {
+            this.stamina = 0;
+        }
+        if(this.stamina >= this.staminaMax) {
+            this.stamina = this.staminaMax;
+        }
+    }
+
+    getHP() {
+        return Math.floor(this.hp);
+    }
+
+    getMaxHP() {
+        return Math.floor(this.hpMax);
+    }
+
+    getStamina() {
+        return Math.floor(this.stamina);
+    }
+
+    getMaxStamina() {
+        return Math.floor(this.staminaMax);
+    }
+
+    initControls() {
+        document.getElementById('look-left').onclick = this.lookLeft.bind(this);
+        document.getElementById('look-right').onclick = this.lookRight.bind(this);
+        document.getElementById('go-forward').onclick = this.goForward.bind(this);
+        document.getElementById('go-back').onclick = this.goBack.bind(this);
+        document.getElementById('go-left').onclick = this.goLeft.bind(this);
+        document.getElementById('go-right').onclick = this.goRight.bind(this);
+        document.getElementById('inventory-button').onclick = this.showInventory.bind(this);
+        document.getElementById('inventory-close').onclick = this.hideInventory.bind(this);
+        document.getElementById('character-button').onclick = this.showCharacter.bind(this);
+        document.getElementById('character-close').onclick = this.hideCharacter.bind(this);
+    }
+
+    setWorld(world) {
+        this.world = world;
+    }
+
+    updateCamera() {
+        GetRenderManager().getCamera().position.set(this.location[0], 0, this.location[1]);
+        GetRenderManager().setLight(this.location[0], 0, this.location[1]);
+        if(this.orientation == Direction.NORTH) {
+            GetRenderManager().getCamera().lookAt(this.location[0], 0, this.location[1] - 3);
+            document.getElementById('compass').innerHTML = 'W | | | | | | | <span style="color:red">N</span> | | | | | | | E';
+        }
+        if(this.orientation == Direction.SOUTH) {
+            GetRenderManager().getCamera().lookAt(this.location[0], 0, this.location[1] + 3);
+            document.getElementById('compass').innerHTML = 'E | | | | | | | S | | | | | | | W';
+        }
+        if(this.orientation == Direction.WEST) {
+            GetRenderManager().getCamera().lookAt(this.location[0] - 3, 0, this.location[1]);
+            document.getElementById('compass').innerHTML = 'S | | | | | | | W | | | | | | | <span style="color:red">N</span>';
+        }
+        if(this.orientation == Direction.EAST) {
+            GetRenderManager().getCamera().lookAt(this.location[0] + 3, 0, this.location[1]);
+            document.getElementById('compass').innerHTML = '<span style="color:red">N</span> | | | | | | | E | | | | | | | S';
+        }
+    }
+
+    updateStats() {
+        document.getElementById('hp-display').innerHTML = this.getHP();
+        document.getElementById('hp-display-max').innerHTML = this.getMaxHP();
+        document.getElementById('stamina-display').innerHTML = this.getStamina();
+        document.getElementById('stamina-display-max').innerHTML = this.getMaxStamina();
+    }
+
+    render() {
+        this.updateCamera();
+        this.updateStats();
+    }
+
+    id() {
+        return this.uuid;
+    }
+
+    tick() {
+        this.stamina += this.regen["stamina"];
+        if(this.stamina >= this.staminaMax) {
+            this.stamina = this.staminaMax;
+        }
+        this.hp += this.regen["hp"];
+        if(this.hp >= this.hpMax) {
+            this.hp = this.hpMax;
+        }
+    }
+
+    showInventory() {
+        document.getElementById('inventory-body').innerHTML = "";
+        for (const [key, value] of Object.entries(this.inventory)) {
+            document.getElementById('inventory-body').innerHTML += `
+            <div class="inventory-entry" id='` + this.inventory[key].item.id() + `'>
+                <div class="inventory-qty">` + this.inventory[key].quantity + `</div>
+                <div class="inventory-name">` + this.inventory[key].item.name() + `</div>
+            </div>`;
+        }
+        for (const [key, value] of Object.entries(this.inventory)) {
+            document.getElementById(this.inventory[key].item.id()).onclick = () => {
+                if(this.inventory[key].quantity > 0) {
+                    let audio = GetAudioManager();
+                    audio.playSound('UseItem');
+                    this.inventory[key].item.use(this);
+                    this.inventory[key].quantity --;
+                    this.hideInventory();
+                }
+            }
+        }
+
+        ShowInventory();
+    }
+
+    hideInventory() {
+        HideInventory();
+    }
+
+    showCharacter() {
+        ShowCharacter();
+    }
+
+    hideCharacter() {
+        HideCharacter();
+    }
+
+    ////////////////////////////////// Player controls 
+    lookRight() {
+        if(this.immobile) {
+            WriteLog("You have been immobilized and cannot perform any actions.");
+            return;
+        }
+        if(this.orientation == Direction.NORTH) {
+            this.orientation = Direction.EAST;
+        }
+        else if(this.orientation == Direction.EAST) {
+            this.orientation = Direction.SOUTH;
+        }
+        else if(this.orientation == Direction.SOUTH) {
+            this.orientation = Direction.WEST;
+        }
+        else if(this.orientation == Direction.WEST) {
+            this.orientation = Direction.NORTH;
+        }
+    }
+
+    lookLeft() {
+        if(this.immobile) {
+            WriteLog("You have been immobilized and cannot perform any actions.");
+            return;
+        }
+        if(this.orientation == Direction.NORTH) {
+            this.orientation = Direction.WEST;
+        }
+        else if(this.orientation == Direction.EAST) {
+            this.orientation = Direction.NORTH;
+        }
+        else if(this.orientation == Direction.SOUTH) {
+            this.orientation = Direction.EAST;
+        }
+        else if(this.orientation == Direction.WEST) {
+            this.orientation = Direction.SOUTH;
+        }
+    }
+
+    goForward() {
+        if(this.immobile) {
+            WriteLog("You have been immobilized and cannot perform any actions.");
+            return;
+        }
+       if(this.stamina < this.staminaCost["move"]) {
+            WriteLog("You are too exhausted to move.");
+            return;
+        }
+        if(this.orientation == Direction.NORTH) {
+            if(this.world.canMove([this.location[0], this.location[1] - 1])) {
+                this.location[1] --;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            } 
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.SOUTH) {
+            if(this.world.canMove([this.location[0], this.location[1] + 1])) {
+                this.location[1] ++;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.EAST) {
+            if(this.world.canMove([this.location[0] + 1, this.location[1]])) {
+                this.location[0] ++;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.WEST) {
+            if(this.world.canMove([this.location[0] - 1, this.location[1]])) {
+                this.location[0] --;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+    }
+
+    goLeft() {
+        if(this.immobile) {
+            WriteLog("You have been immobilized and cannot perform any actions.");
+            return;
+        }
+        if(this.stamina < this.staminaCost["move"]) {
+            WriteLog("You are too exhausted to move.");
+            return;
+        }
+        if(this.orientation == Direction.NORTH) {
+            if(this.world.canMove([this.location[0] - 1, this.location[1]])) {
+                this.location[0] --;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.SOUTH) {
+            if(this.world.canMove([this.location[0] + 1, this.location[1]])) {
+                this.location[0] ++;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.EAST) {
+            if(this.world.canMove([this.location[0], this.location[1] - 1])) {
+                this.location[1] --;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.WEST) {
+            if(this.world.canMove([this.location[0], this.location[1] + 1])) {
+                this.location[1] ++;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+    }
+
+    goBack() {
+        if(this.immobile) {
+            WriteLog("You have been immobilized and cannot perform any actions.");
+            return;
+        }
+        if(this.stamina < this.staminaCost["move"]) {
+            WriteLog("You are too exhausted to move.");
+            return;
+        }
+        if(this.orientation == Direction.NORTH) {
+            if(this.world.canMove([this.location[0], this.location[1] + 1])) {
+                this.location[1] ++;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.SOUTH) {
+            if(this.world.canMove([this.location[0], this.location[1] - 1])) {
+                this.location[1] --;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.EAST) {
+            if(this.world.canMove([this.location[0] - 1, this.location[1]])) {
+                this.location[0] --;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.WEST) {
+            if(this.world.canMove([this.location[0] + 1, this.location[1]])) {
+                this.location[0] ++;
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+                this.stamina -= this.staminaCost["move"];
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+    }
+
+    goRight() {
+        if(this.immobile) {
+            WriteLog("You have been immobilized and cannot perform any actions.");
+            return;
+        }
+        if(this.stamina < this.staminaCost["move"]) {
+            WriteLog("You are too exhausted to move.");
+            return;
+        }
+        if(this.orientation == Direction.NORTH) {
+            if(this.world.canMove([this.location[0] + 1, this.location[1]])) {
+                this.location[0] ++;
+                this.stamina -= this.staminaCost["move"];
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.SOUTH) {
+            if(this.world.canMove([this.location[0] - 1, this.location[1]])) {
+                this.location[0] --;
+                this.stamina -= this.staminaCost["move"];
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.EAST) {
+            if(this.world.canMove([this.location[0], this.location[1] + 1])) {
+                this.location[1] ++;
+                this.stamina -= this.staminaCost["move"];
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+        if(this.orientation == Direction.WEST) {
+            if(this.world.canMove([this.location[0], this.location[1] - 1])) {
+                this.location[1] --;
+                this.stamina -= this.staminaCost["move"];
+                let audio = GetAudioManager();
+                audio.playSound('Walk');
+            }
+            else {
+                let audio = GetAudioManager();
+                audio.playSound('Bounce');
+            }
+        }
+    }
+
+}
+
+let player = new Player();
+
+function GetPlayer() {
+    return player;
+}
+
+export {GetPlayer};

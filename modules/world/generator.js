@@ -20,7 +20,12 @@ class Generator {
                     map[i][j] = 1;
                 }
                 else {
-                    map[i][j] = 0;
+                    if(Math.random() < 0.1) {
+                        map[i][j] = 1;
+                    }
+                    else {
+                        map[i][j] = 0;
+                    }
                 }
             }
         }

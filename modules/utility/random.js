@@ -39,4 +39,16 @@ class Random {
     }
 }
 
-export {Random}
+function RollD20() {
+    return 1 + Math.floor(Math.random() * 20);
+}
+
+function RollD(number, sides) {
+    let roll = 0;
+    for(var i = 0; i < number; ++i) {
+        roll += (1 + Math.floor(Math.random() * sides));
+    }
+    return roll;
+}
+
+export {Random, RollD20, RollD}

@@ -16,6 +16,8 @@ function StartLoading() {
     audio.loadSound('Walk');
     audio.loadSound('Bounce');
     audio.loadSound('UseItem');
+    audio.loadSound('Hit');
+    audio.loadSound('Hurt');
 
     let loading = GetContentLoadingManager();
     ForceShowOverlay("Loading assets ...");

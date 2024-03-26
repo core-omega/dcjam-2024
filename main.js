@@ -25,6 +25,7 @@ function StartLoading() {
 }
 
 function EntryPoint() {
+    
     ForceHideOverlay();
     let audio = GetAudioManager();
     audio.loopTrack('Intro');
@@ -34,10 +35,10 @@ function EntryPoint() {
     let render = GetRenderManager();
     render.register('world', GetWorld());
     render.start();
-    WriteLog("Welcome to DCRWL.");
+    WriteLog("Welcome to DCJam 2024.");
 }
 
 window.addEventListener('load', () => {
-    ForceShowOverlay(" <a id='start-button'>Click here to start the game.</a>");
+    ForceShowOverlay(" <a id='start-button'>Click here to start the game.<br /><img src='dc2024_logo_white.png' height='256' /></a>");
     document.getElementById('start-button').addEventListener('click', StartLoading, false);
 }, false);

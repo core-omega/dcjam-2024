@@ -15,7 +15,7 @@ class InventoryContainer {
 class Player {
     constructor() {
         // [x, y] in map grid - 0-indexed
-        this.location = [3, 0];
+        this.location = [3, 1];
         this.orientation = Direction.SOUTH;
 
         this.uuid = "player";
@@ -36,7 +36,7 @@ class Player {
         
         this.staminaCost = {
             "move" : 5,
-            "attack" : 15
+            "attack" : 7
         };
         this.regen = {
             "stamina" : 2.5,

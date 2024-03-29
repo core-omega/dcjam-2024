@@ -1,7 +1,7 @@
 import { GetCharacterManager } from "../character/manager.js";
 import { LocalMap } from "../display/map.js";
 import { GetPlayer } from "../character/player.js";
-import { EnemyEvilEye } from "../character/enemy.js";
+import { EnemyEvilEye, EnemySnake } from "../character/enemy.js";
 
 class World {
     constructor() {
@@ -25,7 +25,8 @@ class World {
         charManager.update();
         this.map.render();
         if(charManager.count() == 0) {
-            charManager.add(new EnemyEvilEye());
+            charManager.add(new EnemySnake());
+            charManager.add(new EnemySnake());
         }
     }
 

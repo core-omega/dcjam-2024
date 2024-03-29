@@ -32,7 +32,6 @@ class LootEntry {
         this.sprite.scale.set(0.2, 0.2, 0.2);
         this.sprite.position.set(this.location[0] + 0.3, -0.6, this.location[1] + 0.3);
         this.root.add(this.sprite);
-        console.log(this.root);
         GetRenderManager().getScene().add(this.root);
     }
 }

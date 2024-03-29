@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "2d-dungeon": "^1.0.1",
     "three": "^0.160.0"
   },
   "devDependencies": {

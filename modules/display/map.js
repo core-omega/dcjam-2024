@@ -10,15 +10,15 @@ class LocalMap {
 
         // load a texture
         const wallTexture = loader.load(
-            'texture/Steel.png'
+            'texture/sbs/Stone_14.png'
         );
 
         const floorTexture = loader.load(
-            'texture/Floor_01.png'
+            'texture/sbs/Wood_08.png'
         );
 
         const ceilingTexture = loader.load(
-            'texture/Ceiling_01.png'
+            'texture/sbs/Plaster_14.png'
         );
 
         this.floorGeometry = new THREE.BoxGeometry(1, 0.5, 1);

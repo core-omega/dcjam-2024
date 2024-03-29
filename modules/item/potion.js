@@ -1,3 +1,5 @@
+import { Treasure } from "./treasure";
+
 class HealingPotion {
     use(player) {
         player.modifyHP(50);
@@ -52,7 +54,8 @@ class StaminaPotion {
 
 var ItemMapping = {
     "lesserstamina": StaminaPotion,
-    "lesserhealth": HealingPotion
+    "lesserhealing": HealingPotion,
+    "treasure": Treasure
 }
 
 export {HealingPotion, StaminaPotion, ItemMapping}

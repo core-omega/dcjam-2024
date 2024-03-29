@@ -30,7 +30,13 @@ class EnemyEvilEye {
         this.material.dispose();
         GetRenderManager().getScene().remove(this.root);
         let loot = GetLootManager();
-        loot.add(1, "lesserhealth", [this.location[0], this.location[1]]);
+        let roll = Math.random();
+        if(roll < 0.2) {
+            loot.add(1, "lesserhealing", [this.location[0], this.location[1]]);
+        }
+        else if(roll < 0.4) {
+            loot.add(1, "lesserstamina", [this.location[0], this.location[1]]);
+        }
     }
 
     modifyHP(value) {
@@ -81,6 +87,9 @@ class EnemyEvilEye {
             return;
         }
         let player = GetPlayer();
+        if(player.isDead) {
+            return;
+        }
         let world = GetWorld();
         let map = world.getMap();
         ++this.moveLast;
@@ -193,7 +202,13 @@ class EnemySnake {
         this.material.dispose();
         GetRenderManager().getScene().remove(this.root);
         let loot = GetLootManager();
-        loot.add(1, "lesserhealth", [this.location[0], this.location[1]]);
+        let roll = Math.random();
+        if(roll < 0.25) {
+            loot.add(1, "lesserhealing", [this.location[0], this.location[1]]);
+        }
+        else if(roll < 0.5) {
+            loot.add(1, "lesserstamina", [this.location[0], this.location[1]]);
+        }
     }
 
     modifyHP(value) {
@@ -244,6 +259,9 @@ class EnemySnake {
             return;
         }
         let player = GetPlayer();
+        if(player.isDead) {
+            return;
+        }
         let world = GetWorld();
         let map = world.getMap();
         ++this.moveLast;

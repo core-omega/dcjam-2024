@@ -30,8 +30,8 @@ function EntryPoint() {
     let audio = GetAudioManager();
     audio.loopTrack('Intro');
     GetInputManager().start();
-
     CreateRenderManager('three-container');
+    GetWorld().initWorld();
     let render = GetRenderManager();
     render.register('world', GetWorld());
     render.start();

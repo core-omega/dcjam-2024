@@ -52,6 +52,19 @@ class LocalMap {
         ];
     }
 
+    getRandomLocation() {
+        let done = false;
+        while(!done) {
+            let x = Math.floor(Math.random() * this.map[0].length);
+            let y = Math.floor(Math.random() * this.map.length);
+            let location = [y, x];
+            if(this.canMove(location)) {
+                return location;
+            }
+        }
+
+    }
+
     getStartLocation() {
         return this.generator.getStartLocation();
     }
@@ -153,6 +166,8 @@ class LocalMap {
             for(var j = 0; j < this.map[i].length; ++j) {
                 if(this.map[i][j] != 0) {
                     this.wall[i][j] = new THREE.Mesh(this.geometry, this.material);
+                    this.wall[i][j].castShadow = true;
+                    this.wall[i][j].receiveShadow = true;
                     this.wall[i][j].position.z = i;
                     this.wall[i][j].position.x = j;
                     this.root.add(this.wall[i][j]);
@@ -162,6 +177,7 @@ class LocalMap {
                 this.floor[i][j].position.z = i;
                 this.floor[i][j].position.x = j;
                 this.floor[i][j].position.y = -1;
+                this.floor[i][j].receiveShadow = true;
                 this.root.add(this.floor[i][j]);
 
                 this.ceiling[i][j] = new THREE.Mesh(this.ceilingGeometry, this.ceilingMaterial);

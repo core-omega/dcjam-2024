@@ -1,7 +1,7 @@
 import { GetRenderManager } from "../display/render.js";
 import { GetAudioManager } from '/modules/world/audio.js';
 import { Direction } from "../world/direction.js";
-import { WriteLog, ShowInventory, HideInventory, ShowCharacter, HideCharacter } from "../display/show.js";
+import { WriteLog, ShowInventory, HideInventory, ShowCharacter, HideCharacter, ForceShowOverlay } from "../display/show.js";
 import { Random, RollD } from "../utility/random.js";
 import { HealingPotion, ItemMapping, StaminaPotion } from "../item/potion.js";
 import { GetLootManager } from "../item/loot.js";
@@ -75,6 +75,9 @@ class Player {
     }
 
     setInCombat(value, source) {
+        if(this.isDead) {
+            return;
+        }
         if(value == this.combat) {
             return;
         }
@@ -102,8 +105,9 @@ class Player {
         this.hp += value;
         if(this.hp <= 0) {
             this.hp = 0;
-            this.dead = true;
+            this.isDead = true;
             this.immobile = true;
+            ForceShowOverlay("<span style='color:red'>YOU DIED</span>");
         }
         if(this.hp >= this.hpMax) {
             this.hp = this.hpMax;
@@ -178,6 +182,7 @@ class Player {
         let loot = GetLootManager();
         let found = loot.find(this.location);
         if(null != found) {
+            console.log("[player] Found type: " + found.type);
             let item = new ItemMapping[found.type]();
             if(item.id() in this.inventory) {
                 this.inventory[item.id()].quantity += found.quantity;

@@ -2,8 +2,11 @@ import { GetCharacterManager } from "../character/manager.js";
 import { LocalMap } from "../display/map.js";
 import { GetPlayer } from "../character/player.js";
 import { EnemyEvilEye, EnemySnake } from "../character/enemy.js";
+import { GetLootManager } from "../item/loot.js";
 
 class World {
+    LOOT_COUNT = 10;
+
     constructor() {
         this.map = new LocalMap();
         let start = window.performance.now();
@@ -21,10 +24,31 @@ class World {
         return this.map.canMove(location);
     }
 
+    initWorld() {
+        let loot = GetLootManager();
+        for(var i = 0; i < 10; ++i) {
+            loot.randomize();
+        }
+
+        loot.add(1, "treasure", [2, 2]);
+    }
+
     render() {
         let charManager = GetCharacterManager();
         charManager.update();
         this.map.render();
+        if(charManager.count() < 8) {
+            let enemy = null;
+            if(Math.random() < 0.6) {
+                enemy = new EnemyEvilEye();
+            }
+            else {
+                enemy = new EnemySnake();
+            }
+            enemy.location = this.map.getRandomLocation();
+            console.log("New enemy of type " + enemy.name() + " at " + enemy.location);
+            charManager.add(enemy);
+        }
     }
 
     getMap() {

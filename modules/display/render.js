@@ -14,7 +14,7 @@ class RenderManager {
 
         this.registered = {};
 
-        this.light = new THREE.PointLight(0xffffff, 6);
+        this.light = new THREE.PointLight(0xffffff, 1);
         this.light.position.set(0, 3, 0);
         this.scene.add(this.light);
     }

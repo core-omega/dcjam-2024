@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GetRenderManager } from '../display/render.js';
-import { GetDistance } from '../world/world.js';
+import { GetDistance, GetWorld } from '../world/world.js';
+import { ItemMapping } from './potion.js';
 
 class LootEntry {
     constructor() {
@@ -21,7 +22,13 @@ class LootEntry {
     }
 
     create(quantity, type, location) {
-        const map = new THREE.TextureLoader().load( 'sprite/DC_Chest.png' );
+        let map = null;
+        if(type == "treasure") {
+            map = new THREE.TextureLoader().load('sprite/DC_Treasure.png');
+        }
+        else {
+            map = new THREE.TextureLoader().load('sprite/DC_Chest.png');
+        }
         this.quantity = quantity;
         this.type = type;
         this.location = [location[0], location[1]];
@@ -29,11 +36,19 @@ class LootEntry {
             map: map
         });
         this.sprite = new THREE.Sprite(this.material);
-        this.sprite.scale.set(0.2, 0.2, 0.2);
-        this.sprite.position.set(this.location[0] + 0.3, -0.6, this.location[1] + 0.3);
+        if(type == "treasure") {
+            this.sprite.scale.set(0.6, 0.6, 0.6);
+            this.sprite.position.set(this.location[0] + 0.3, 0, this.location[1] + 0.3);
+        }
+        else {
+            this.sprite.scale.set(0.3, 0.3, 0.3);
+            this.sprite.position.set(this.location[0] + 0.3, -0.6, this.location[1] + 0.3);
+        }
+
         this.root.add(this.sprite);
         GetRenderManager().getScene().add(this.root);
     }
+
 }
 
 class LootManager {
@@ -41,6 +56,24 @@ class LootManager {
 
     constructor() {
         this.list = [];
+    }
+
+    randomize() {
+        let quantity = 1 + Math.floor(Math.random() * 3);
+        let location = GetWorld().getMap().getRandomLocation();
+        let mapping = ItemMapping;
+        let keys = Object.keys(mapping);
+        let done = false;
+        let selected = "";
+        while(!done) {
+            selected = keys[Math.floor(Math.random() * keys.length)];
+            if(selected != "treasure") {
+                done = true;
+            }
+        }
+        let type = new mapping[selected]().id();
+        console.log("[loot-manager] Adding randomized loot: " + quantity + "x " + type + " @ " + location);
+        this.add(quantity, type, location);
     }
 
     add(quantity, type, location) {

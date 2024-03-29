@@ -154,6 +154,10 @@ class EnemyEvilEye {
         }
     }
 
+    id() {
+        return "evileye";
+    }
+
     name() {
         return "Evil Eye";
     }
@@ -324,6 +328,10 @@ class EnemySnake {
             this.sprite.position.set(this.location[0] + 0.1, -0.5, this.location[1] + 0.1);
             this.moveLast = 0;
         }
+    }
+
+    id() {
+        return "snake";
     }
 
     name() {

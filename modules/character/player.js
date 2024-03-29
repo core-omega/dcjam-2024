@@ -6,6 +6,7 @@ import { Random, RollD } from "../utility/random.js";
 import { HealingPotion, ItemMapping, StaminaPotion } from "../item/potion.js";
 import { GetLootManager } from "../item/loot.js";
 import { StartingNote } from "../item/note.js";
+import { GetCharacterManager } from "./manager.js";
 
 class InventoryContainer {
     constructor(item) {
@@ -61,6 +62,9 @@ class Player {
     }
 
     addCombatTarget(target) {
+        if(!this.combat) {
+            this.setInCombat(true, target);
+        }
         for(var i = 0; i < this.combatTarget.length; ++i) {
             if(target == this.combatTarget[i]) {
                 return;
@@ -141,6 +145,7 @@ class Player {
     }
 
     attack() {
+        let charManager = GetCharacterManager();
         if(this.isInCombat()) {
             if(this.getStamina() < this.staminaCost["attack"]) {
                 WriteLog("You are too exhausted to attack!");
@@ -172,8 +177,15 @@ class Player {
                 console.log("[player] Ending combat.");
             }
         }
+        else if(charManager.find(this.location) != null) {
+            let target = charManager.find(this.location);
+            if(target.isDead || target.isDying) {
+                WriteLog("This target is already dying.");
+            }
+            this.addCombatTarget(target);
+        }
         else {
-            WriteLog("Cannot attack when not in combat!");
+            WriteLog("Cannot attack anything nearby!");
         }
     }
 
@@ -305,6 +317,13 @@ class Player {
     }
 
     showCharacter() {
+        document.getElementById('character-body').innerHTML = `
+            <div>
+            Strength: ` + this.strength + `<br />
+            Dexterity: ` + this.dexterity + `<br /><br />
+            </div>
+        `;
+
         ShowCharacter();
     }
 

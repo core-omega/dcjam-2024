@@ -1,3 +1,5 @@
+import { GetDistance } from "../world/world.js";
+
 class CharacterManager {
     constructor() {
         this.characters = [];
@@ -16,6 +18,22 @@ class CharacterManager {
                 return;
             }
         }
+    }
+
+    find(location) {
+        for(var i = 0; i < this.characters.length; ++i) {
+            if(this.characters[i].id() == "player") {
+                continue;
+            }
+            if(this.characters[i].isDead || this.characters[i].isDying) {
+                continue;
+            }
+            if(GetDistance(location, this.characters[i].location) <= 2.0) {
+                return this.characters[i];
+            }
+        }
+
+        return null;
     }
 
     update() {

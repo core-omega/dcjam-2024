@@ -52,7 +52,7 @@ class LootEntry {
 }
 
 class LootManager {
-    static INTERACT_THRESHOLD = 1.0;
+    static INTERACT_THRESHOLD = 2.0;
 
     constructor() {
         this.list = [];

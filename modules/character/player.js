@@ -3,7 +3,8 @@ import { GetAudioManager } from '/modules/world/audio.js';
 import { Direction } from "../world/direction.js";
 import { WriteLog, ShowInventory, HideInventory, ShowCharacter, HideCharacter } from "../display/show.js";
 import { Random, RollD } from "../utility/random.js";
-import { HealingPotion, StaminaPotion } from "../item/potion.js";
+import { HealingPotion, ItemMapping, StaminaPotion } from "../item/potion.js";
+import { GetLootManager } from "../item/loot.js";
 
 class InventoryContainer {
     constructor(item) {
@@ -30,6 +31,10 @@ class Player {
         this.dead = false;
         this.immobile = false;
         this.combat = false;
+
+        this.isDead = false;
+        this.isDying = false;
+        
         this.combatTarget = [
 
         ];
@@ -165,6 +170,27 @@ class Player {
         }
     }
 
+    interact() {
+        console.log("[player] Interaction.");
+        let loot = GetLootManager();
+        let found = loot.find(this.location);
+        if(null != found) {
+            let item = new ItemMapping[found.type]();
+            if(item.id() in this.inventory) {
+                this.inventory[item.id()].quantity += found.quantity;
+            } 
+            else {
+                this.inventory[item.id()] = new InventoryContainer(item);
+                this.inventory[item.id()].quantity = found.quantity;
+            }
+            WriteLog("Found " + found.quantity + "x " + item.name());
+            loot.take(found);
+        }
+        else {
+            WriteLog("There's nothing here to interact with.");
+        }
+    }
+
     initControls() {
         document.getElementById('look-left').onclick = this.lookLeft.bind(this);
         document.getElementById('look-right').onclick = this.lookRight.bind(this);
@@ -177,6 +203,7 @@ class Player {
         document.getElementById('character-button').onclick = this.showCharacter.bind(this);
         document.getElementById('character-close').onclick = this.hideCharacter.bind(this);
         document.getElementById('attack-button').onclick = this.attack.bind(this);
+        document.getElementById('interact-button').onclick = this.interact.bind(this);
     }
 
     setWorld(world) {

@@ -29,6 +29,12 @@ class CharacterManager {
         for(var i = 0; i < this.characters.length; ++i) {
             this.characters[i].render();
         }
+        for(var i = this.characters.length - 1; i >= 0; --i) {
+            if(this.characters[i].isDead) {
+                console.log("[character-manager] Removing dead character from list.");
+                this.characters.splice(i, 1);
+            }
+        }
     }
 
     count() {

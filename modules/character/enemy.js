@@ -5,6 +5,7 @@ import { GetPlayer } from './player.js';
 import { GetWorld } from '../world/world.js';
 import { WriteLog } from '../display/show.js';
 import { RollD } from '../utility/random.js';
+import { GetLootManager } from '../item/loot.js';
 
 class EnemyEvilEye {
     constructor() {
@@ -21,6 +22,17 @@ class EnemyEvilEye {
         this.hpMax = 40;
     }
 
+    executeDeath() {
+        this.isDead = true;
+        while(this.root.children.length > 0){ 
+            this.root.remove(this.root.children[0]); 
+        }
+        this.material.dispose();
+        GetRenderManager().getScene().remove(this.root);
+        let loot = GetLootManager();
+        loot.add(1, "lesserhealth", [this.location[0], this.location[1]]);
+    }
+
     modifyHP(value) {
         this.hp += value;
         if(this.hp <= 0) {
@@ -31,11 +43,7 @@ class EnemyEvilEye {
             setTimeout(function timeout() {
                 self.sprite.material.opacity -= 0.08;
                 if(self.sprite.material.opacity < 0.16) {
-                    this.isDead = true;
-                    while(self.root.children.length > 0){ 
-                        self.root.remove(self.root.children[0]); 
-                    }
-                    self.material.dispose();
+                    self.executeDeath();
                 }
                 else {
                     setTimeout(timeout, 100);

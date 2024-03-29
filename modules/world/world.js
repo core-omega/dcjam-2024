@@ -14,7 +14,6 @@ class World {
         this.player.setWorld(this);
         let charManager = GetCharacterManager();
         charManager.add(GetPlayer());
-        charManager.add(new EnemyEvilEye());
     }
 
     canMove(location) {
@@ -25,6 +24,9 @@ class World {
         let charManager = GetCharacterManager();
         charManager.update();
         this.map.render();
+        if(charManager.count() == 0) {
+            charManager.add(new EnemyEvilEye());
+        }
     }
 
     getMap() {
@@ -38,4 +40,11 @@ function GetWorld() {
     return world;
 }
 
-export {GetWorld}
+function GetDistance(location1, location2) {
+    return Math.sqrt(
+        (location1[0] - location2[0]) * (location1[0] - location2[0]) +
+        (location1[1] - location2[1]) * (location1[1] - location2[1])
+    );
+}
+
+export {GetWorld, GetDistance}

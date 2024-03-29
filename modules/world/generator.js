@@ -13,20 +13,29 @@ class Generator {
         for(var i = 0; i < height; ++i) {
             map[i] = [];
             for(var j = 0; j < width; ++j) {
-                if(i == 0 || j == 0) {
-                    map[i][j] = 1;
-                }
-                else if(i == height - 1 || j == width - 1) {
-                    map[i][j] = 1;
-                }
-                else {
-                    if(Math.random() < 0.1) {
-                        map[i][j] = 1;
-                    }
-                    else {
-                        map[i][j] = 0;
-                    }
-                }
+                map[i][j] = 1;
+            }
+        }
+
+        let visited = [];
+        for(var i = 0; i < height; ++i) {
+            visited[i] = [];
+            for(var j = 0; j < width; ++j) {
+                visited[i][j] = false;
+            }
+        }
+        let carve = width * height * 0.75;
+        for(var i = 0; i < carve; ++i) {
+            let location = [
+                Math.floor(1 + this.random.random() * (height - 2)), 
+                Math.floor(1 + this.random.random() * (width - 2))
+            ];
+            if(visited[location[0]][location[1]]) {
+                --i;
+            } 
+            else {
+                visited[location[0]][location[1]] = true;
+                map[location[0]][location[1]] = 0;
             }
         }
 

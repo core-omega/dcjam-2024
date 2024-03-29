@@ -42,4 +42,9 @@ class StaminaPotion {
     }
 }
 
-export {HealingPotion, StaminaPotion}
+var ItemMapping = {
+    "lesserstamina": StaminaPotion,
+    "lesserhealth": HealingPotion
+}
+
+export {HealingPotion, StaminaPotion, ItemMapping}

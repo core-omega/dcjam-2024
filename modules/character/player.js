@@ -5,6 +5,7 @@ import { WriteLog, ShowInventory, HideInventory, ShowCharacter, HideCharacter } 
 import { Random, RollD } from "../utility/random.js";
 import { HealingPotion, ItemMapping, StaminaPotion } from "../item/potion.js";
 import { GetLootManager } from "../item/loot.js";
+import { StartingNote } from "../item/note.js";
 
 class InventoryContainer {
     constructor(item) {
@@ -40,7 +41,7 @@ class Player {
         ];
         
         this.staminaCost = {
-            "move" : 5,
+            "move" : 3,
             "attack" : 7
         };
         this.regen = {
@@ -54,6 +55,8 @@ class Player {
         this.inventory[new StaminaPotion().id()].quantity = 5;
         this.inventory[new HealingPotion().id()] = new InventoryContainer(new HealingPotion());
         this.inventory[new HealingPotion().id()].quantity = 5;
+        this.inventory[new StartingNote().id()] = new InventoryContainer(new StartingNote());
+        this.inventory[new StartingNote().id()].quantity = 1;
         this.random = new Random("Player Random");
     }
 
@@ -210,6 +213,11 @@ class Player {
         this.world = world;
     }
 
+    setPosition(location) {
+        this.location[0] = location[0];
+        this.location[1] = location[1];
+    }
+
     updateCamera() {
         GetRenderManager().getCamera().position.set(this.location[0], 0, this.location[1]);
         GetRenderManager().setLight(this.location[0], 0, this.location[1]);
@@ -276,7 +284,9 @@ class Player {
                     let audio = GetAudioManager();
                     audio.playSound('UseItem');
                     this.inventory[key].item.use(this);
-                    this.inventory[key].quantity --;
+                    if(!this.inventory[key].item.infinite()) {
+                        this.inventory[key].quantity --;
+                    }
                     this.hideInventory();
                 }
             }

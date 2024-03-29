@@ -52,13 +52,18 @@ class LocalMap {
         ];
     }
 
+    getStartLocation() {
+        return this.generator.getStartLocation();
+    }
+
     findPath(source, destination) {
         let queue = [[source[0], source[1]]];
         let path = [[[source[0], source[1]]]];
         let visited = [];
-        for(var i = 0; i < this.map.length; ++i) {
+        // FIXME: visited dimensions are off from what they need to be - workaround is setting to larger than map.
+        for(var i = 0; i < 125; ++i) {
             visited[i] = [];
-            for(var j = 0; j < this.map[i].length; ++j) {
+            for(var j = 0; j < 125; ++j) {
                 visited[i][j] = false;
             }
         }

@@ -15,13 +15,13 @@ class Generator {
         let dungeon = new Dungeon({
             max_iterations: 50,
             size: [125, 125],
-            seed: "abcd", //omit for generated seed
+            // seed: "abcd", 
             rooms: {
                 initial: {
                     min_size: [3, 3],
                     max_size: [3, 3],
                     max_exits: 3,
-                    position: [0, 0], //OPTIONAL pos of initial room
+                    position: [0, 0], 
                 },
                 any: {
                     min_size: [4, 4],
@@ -45,10 +45,12 @@ class Generator {
                 map[i][j] = (dungeon.walls.get([i, j])) ? 1 : 0;
             }
         }
-        console.log(dungeon);
-
-        console.log(map);
+        this.dungeon = dungeon;
         return map;
+    }
+
+    getStartLocation() {
+        return [this.dungeon.start_pos[0], this.dungeon.start_pos[1]];
     }
 }
 

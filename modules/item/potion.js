@@ -18,6 +18,10 @@ class HealingPotion {
     name() {
         return "Lesser Potion of Healing";
     }
+
+    infinite() {
+        return false;
+    }
 }
 
 class StaminaPotion {
@@ -39,6 +43,10 @@ class StaminaPotion {
 
     name() {
         return "Lesser Potion of Stamina";
+    }
+
+    infinite() {
+        return false;
     }
 }
 

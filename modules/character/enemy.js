@@ -89,6 +89,29 @@ class EnemyEvilEye {
             if(path.length < 1) {
                 console.log("[EvilEye] No path to player ...");
             }
+            else if(path.length > 9) {
+                let roll = Math.random();
+                if(roll < 0.25) {
+                    if(map.canMove([this.location[0] + 1, this.location[1]])) {
+                        this.location = [this.location[0] + 1, this.location[1]];
+                    }
+                }
+                else if(roll < 0.5) {
+                    if(map.canMove([this.location[0] - 1, this.location[1]])) {
+                        this.location = [this.location[0] - 1, this.location[1]];
+                    }
+                }
+                else if(roll < 0.75) {
+                    if(map.canMove([this.location[0], this.location[1] + 1])) {
+                        this.location = [this.location[0], this.location[1] + 1];
+                    }
+                }
+                else {
+                    if(map.canMove([this.location[0], this.location[1] - 1])) {
+                        this.location = [this.location[0], this.location[1] - 1];
+                    }
+                }
+            }
             else if(path.length == 2) {
                 if(!player.isInCombat()) {
                     console.log("[EvilEye] Initiating combat ...");
@@ -237,6 +260,29 @@ class EnemySnake {
                 }
                 else {
                     this.combatRound(player);
+                }
+            }
+            else if(path.length > 9) {
+                let roll = Math.random();
+                if(roll < 0.25) {
+                    if(map.canMove([this.location[0] + 1, this.location[1]])) {
+                        this.location = [this.location[0] + 1, this.location[1]];
+                    }
+                }
+                else if(roll < 0.5) {
+                    if(map.canMove([this.location[0] - 1, this.location[1]])) {
+                        this.location = [this.location[0] - 1, this.location[1]];
+                    }
+                }
+                else if(roll < 0.75) {
+                    if(map.canMove([this.location[0], this.location[1] + 1])) {
+                        this.location = [this.location[0], this.location[1] + 1];
+                    }
+                }
+                else {
+                    if(map.canMove([this.location[0], this.location[1] - 1])) {
+                        this.location = [this.location[0], this.location[1] - 1];
+                    }
                 }
             }
             else if(path.length == 1) {

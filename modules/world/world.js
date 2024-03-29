@@ -7,9 +7,10 @@ class World {
     constructor() {
         this.map = new LocalMap();
         let start = window.performance.now();
-        this.map.findPath([1, 1], [63, 63]);
         console.log(window.performance.now() - start);
         this.player = GetPlayer();
+        this.player.setPosition(this.map.getStartLocation());
+        console.log("[world] Player starting at " + this.map.getStartLocation());
         this.player.initControls();
         this.player.setWorld(this);
         let charManager = GetCharacterManager();
@@ -24,10 +25,6 @@ class World {
         let charManager = GetCharacterManager();
         charManager.update();
         this.map.render();
-        if(charManager.count() == 0) {
-            charManager.add(new EnemySnake());
-            charManager.add(new EnemySnake());
-        }
     }
 
     getMap() {

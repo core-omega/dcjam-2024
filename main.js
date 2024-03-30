@@ -9,7 +9,6 @@ import { GetWorld } from './modules/world/world.js';
 function StartLoading() {
     let audio = GetAudioManager();
     audio.loadTrack('Intro');
-    audio.loadTrack('Encounter');
     audio.loadTrack('Battle');
     
     audio.loadSound('Selection');
@@ -18,6 +17,7 @@ function StartLoading() {
     audio.loadSound('UseItem');
     audio.loadSound('Hit');
     audio.loadSound('Hurt');
+    audio.loadSound('Death');
 
     let loading = GetContentLoadingManager();
     ForceShowOverlay("Loading assets ...");

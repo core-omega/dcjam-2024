@@ -42,7 +42,7 @@ class LootEntry {
         }
         else {
             this.sprite.scale.set(0.3, 0.3, 0.3);
-            this.sprite.position.set(this.location[0] + 0.3, -0.6, this.location[1] + 0.3);
+            this.sprite.position.set(this.location[0] + 0.3, -0.4, this.location[1] + 0.3);
         }
 
         this.root.add(this.sprite);

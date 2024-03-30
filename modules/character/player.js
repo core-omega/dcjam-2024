@@ -7,6 +7,7 @@ import { HealingPotion, ItemMapping, StaminaPotion } from "../item/potion.js";
 import { GetLootManager } from "../item/loot.js";
 import { StartingNote } from "../item/note.js";
 import { GetCharacterManager } from "./manager.js";
+import { GetDistance, GetWorld } from "../world/world.js";
 
 class InventoryContainer {
     constructor(item) {
@@ -112,6 +113,8 @@ class Player {
             this.isDead = true;
             this.immobile = true;
             ForceShowOverlay("<span style='color:red'>YOU DIED</span>");
+            let audio = GetAudioManager();
+            audio.playSound('Death');
         }
         if(this.hp >= this.hpMax) {
             this.hp = this.hpMax;
@@ -211,6 +214,29 @@ class Player {
         }
     }
 
+    leave() {
+        let world = GetWorld();
+        let exit = world.getExit();
+        if(GetDistance(exit, this.location) < 2.0) {
+            let keys = Object.keys(this.inventory);
+            let hasTreasure = false;
+            for(var i = 0; i < keys.length; ++i) {
+                if(keys[i] == "treasure") {
+                    hasTreasure = true;
+                }
+            }
+            if(hasTreasure) {
+                console.log("[player] Exiting dungeon!");
+                this.isDead = true;
+                ForceShowOverlay("You have successfully escaped with the treasure and been paid 1 silver coin!  Great job!");
+            }
+            else {
+                WriteLog("You can't leave without the treasure!  Read the note in your inventory.");
+            }
+        }
+
+    }
+
     initControls() {
         document.getElementById('look-left').onclick = this.lookLeft.bind(this);
         document.getElementById('look-right').onclick = this.lookRight.bind(this);
@@ -218,6 +244,8 @@ class Player {
         document.getElementById('go-back').onclick = this.goBack.bind(this);
         document.getElementById('go-left').onclick = this.goLeft.bind(this);
         document.getElementById('go-right').onclick = this.goRight.bind(this);
+        document.getElementById('go-up').onclick = this.leave.bind(this);
+        document.getElementById('go-down').onclick = this.leave.bind(this);
         document.getElementById('inventory-button').onclick = this.showInventory.bind(this);
         document.getElementById('inventory-close').onclick = this.hideInventory.bind(this);
         document.getElementById('character-button').onclick = this.showCharacter.bind(this);
@@ -257,10 +285,24 @@ class Player {
     }
 
     updateStats() {
-        document.getElementById('hp-display').innerHTML = this.getHP();
+        let status = "Normal";
+        if(this.getHP() < 0.5 * this.getMaxHP()) {
+            document.getElementById('hp-display').innerHTML = "<span style='color:yellow'>" + this.getHP() + "</span>";
+            status = "Injured";
+        }
+        else {
+            document.getElementById('hp-display').innerHTML = this.getHP();
+        }
         document.getElementById('hp-display-max').innerHTML = this.getMaxHP();
-        document.getElementById('stamina-display').innerHTML = this.getStamina();
+        if(this.getStamina() < 0.5 * this.getMaxStamina()) {
+            document.getElementById('stamina-display').innerHTML = "<span style='color:yellow'>" + this.getStamina() + "</span>";
+            status = "Tired";
+        }
+        else {
+            document.getElementById('stamina-display').innerHTML = this.getStamina();
+        }
         document.getElementById('stamina-display-max').innerHTML = this.getMaxStamina();
+        document.getElementById('status-display').innerHTML = status;
     }
 
     render() {

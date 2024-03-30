@@ -3,6 +3,7 @@ import { LocalMap } from "../display/map.js";
 import { GetPlayer } from "../character/player.js";
 import { EnemyEvilEye, EnemySnake } from "../character/enemy.js";
 import { GetLootManager } from "../item/loot.js";
+import { Ladder } from "../item/ladder.js";
 
 class World {
     LOOT_COUNT = 10;
@@ -26,11 +27,19 @@ class World {
 
     initWorld() {
         let loot = GetLootManager();
+        let player = GetPlayer();
         for(var i = 0; i < 10; ++i) {
             loot.randomize();
         }
 
-        loot.add(1, "treasure", [2, 2]);
+        loot.add(1, "treasure", this.map.getRandomLocation());
+
+        this.ladder = new Ladder();
+        this.ladder.create(this.map.getStartLocation());
+    }
+
+    getExit() {
+        return this.map.getStartLocation();
     }
 
     render() {
@@ -46,7 +55,7 @@ class World {
                 enemy = new EnemySnake();
             }
             enemy.location = this.map.getRandomLocation();
-            console.log("New enemy of type " + enemy.name() + " at " + enemy.location);
+            console.log("[world] New enemy of type " + enemy.name() + " spawned at " + enemy.location);
             charManager.add(enemy);
         }
     }

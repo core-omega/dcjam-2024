@@ -8,36 +8,58 @@ class LocalMap {
 
         const loader = new THREE.TextureLoader();
 
-        // load a texture
-        const wallTexture = loader.load(
-            'texture/sbs/Stone_14.png'
-        );
+        const wallTextures = [
+            loader.load('texture/sbs/Stone_13.png'), 
+            loader.load('texture/sbs/Stone_14.png')
+        ];
 
-        const floorTexture = loader.load(
-            'texture/sbs/Wood_08.png'
-        );
+        const floorTextures = [
+            loader.load('texture/sbs/Wood_07.png'),
+            loader.load('texture/sbs/Wood_08.png')
+        ];
 
-        const ceilingTexture = loader.load(
-            'texture/sbs/Plaster_14.png'
-        );
+        const ceilingTextures = [
+            loader.load('texture/sbs/Plaster_13.png'),
+            loader.load('texture/sbs/Plaster_14.png')
+        ];
+
+        this.floorMaterials = [
+            new THREE.MeshStandardMaterial({
+                map: floorTextures[0],
+                metalness: 1.0
+            }),
+            new THREE.MeshStandardMaterial({
+                map: floorTextures[1],
+                metalness: 1.0
+            })
+        ];
+
+        this.ceilingMaterials = [
+            this.ceilingMaterial = new THREE.MeshStandardMaterial({
+                map: ceilingTextures[0],
+                metalness: 0.0
+            }),
+            this.ceilingMaterial = new THREE.MeshStandardMaterial({
+                map: ceilingTextures[1],
+                metalness: 0.0
+            })
+        ];
+
+        this.wallMaterials = [
+            new THREE.MeshStandardMaterial({ 
+                map: wallTextures[0],
+                metalness: 0.4
+            }),
+            new THREE.MeshStandardMaterial({ 
+                map: wallTextures[1],
+                metalness: 0.4
+            })
+        ];
 
         this.floorGeometry = new THREE.BoxGeometry(1, 0.5, 1);
-        this.floorMaterial = new THREE.MeshStandardMaterial({
-            map: floorTexture,
-            metalness: 1.0
-        });
-
         this.ceilingGeometry = new THREE.BoxGeometry(1, 0.5, 1);
-        this.ceilingMaterial = new THREE.MeshStandardMaterial({
-            map: ceilingTexture,
-            metalness: 0.0
-        });
+        this.wallGeometry = new THREE.BoxGeometry( 1, 1, 1 );
 
-        this.geometry = new THREE.BoxGeometry( 1, 1, 1 );
-        this.material = new THREE.MeshStandardMaterial({ 
-            map: wallTexture,
-            metalness: 0.4
-        });
         this.root = new THREE.Object3D();
         this.generator = new Generator();
         this.map = this.generator.generate();
@@ -165,7 +187,12 @@ class LocalMap {
             this.ceiling[i] = [];
             for(var j = 0; j < this.map[i].length; ++j) {
                 if(this.map[i][j] != 0) {
-                    this.wall[i][j] = new THREE.Mesh(this.geometry, this.material);
+                    if(Math.random() < 0.5) {
+                        this.wall[i][j] = new THREE.Mesh(this.wallGeometry, this.wallMaterials[0]);
+                    }
+                    else {
+                        this.wall[i][j] = new THREE.Mesh(this.wallGeometry, this.wallMaterials[0]);
+                    }
                     this.wall[i][j].castShadow = true;
                     this.wall[i][j].receiveShadow = true;
                     this.wall[i][j].position.z = i;
@@ -173,14 +200,24 @@ class LocalMap {
                     this.root.add(this.wall[i][j]);
                 }
 
-                this.floor[i][j] = new THREE.Mesh(this.floorGeometry, this.floorMaterial);
+                if(Math.random() < 0.5) {
+                    this.floor[i][j] = new THREE.Mesh(this.floorGeometry, this.floorMaterials[0]);
+                }
+                else {
+                    this.floor[i][j] = new THREE.Mesh(this.floorGeometry, this.floorMaterials[1]);
+                }
                 this.floor[i][j].position.z = i;
                 this.floor[i][j].position.x = j;
                 this.floor[i][j].position.y = -1;
                 this.floor[i][j].receiveShadow = true;
                 this.root.add(this.floor[i][j]);
 
-                this.ceiling[i][j] = new THREE.Mesh(this.ceilingGeometry, this.ceilingMaterial);
+                if(Math.random() < 0.5) {
+                    this.ceiling[i][j] = new THREE.Mesh(this.ceilingGeometry, this.ceilingMaterials[0]);
+                }
+                else {
+                    this.ceiling[i][j] = new THREE.Mesh(this.ceilingGeometry, this.ceilingMaterials[1]);
+                }
                 this.ceiling[i][j].position.z = i;
                 this.ceiling[i][j].position.x = j;
                 this.ceiling[i][j].position.y = 1;

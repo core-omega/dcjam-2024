@@ -32,7 +32,9 @@ class World {
             loot.randomize();
         }
 
-        loot.add(1, "treasure", this.map.getRandomLocation());
+        let location = this.map.getRandomLocation();
+        loot.add(1, "treasure", location);
+        // console.log(this.map.findPath([2, 2], location));
 
         this.ladder = new Ladder();
         this.ladder.create(this.map.getStartLocation());
